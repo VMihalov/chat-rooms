@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>{{ email }}</title>
+    </head>
+    <body>
+        <form action="rooms" method="POST">
+            <input type="text" name="title" placeholder="Rooms name">
+            <input type="submit" value="Submit">
+        </form>
+
+        <ul>
+        {{#each this}}
+            <li><a href="/rooms/{{ this._id }}">{{ this.title }}</a></li>
+        {{/each}}
+        </ul>
+
+        <a href="/auth/logout">logout</a>
+    </body>
+</html>

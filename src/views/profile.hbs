@@ -1,19 +1,44 @@
 <html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
         <title>{{ email }}</title>
     </head>
-    <body>
-        <form action="rooms" method="POST">
-            <input type="text" name="title" placeholder="Rooms name">
-            <input type="submit" value="Submit">
-        </form>
+    <body><br>
+        <div class="container">
+            
+            <div class="row">
+                <div class="col">
+                    <a class="btn btn-primary" href="/auth/logout">logout</a>
+                </div>
+                <div class="col"></div>
+                <div class="col">
+                    
+                    <input id="roomsText" type="text" name="title" placeholder="Rooms name">
+                    <button id="addRoom" class="btn btn-primary">Submit</button>
+                    
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-lg-3"></div>
+                <div id="roomsContainer" class="col-lg-6">
+                    {{#each rooms}}
+                        <div class="card border-dark">
+                            <div class="card-body text-center">
+                                <a class="card-link text-dark" href="/rooms/{{ id }}">{{ title }}</a>
+                            </div>
+                        </div><br>
+                    {{/each}}
+                </div>
+                <div class="col-lg-3"></div>
+            </div>
+        </div>
 
-        <ul>
-        {{#each this}}
-            <li><a href="/rooms/{{ this._id }}">{{ this.title }}</a></li>
-        {{/each}}
-        </ul>
-
-        <a href="/auth/logout">logout</a>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <script src="http://localhost:3000/socket.io.js"></script>
+        <script src="http://localhost:3000/clientRooms.js"></script>
     </body>
 </html>

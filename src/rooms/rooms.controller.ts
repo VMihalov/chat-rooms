@@ -13,31 +13,30 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Redirect } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Req } from '@nestjs/common';
+import { ChatService } from 'src/chat/chat.service';
 
 @Controller('rooms')
+@UseGuards(AuthGuard)
 export class RoomsController {
   constructor(
     private roomsService: RoomsService,
     private authService: AuthService,
+    private chatService: ChatService,
   ) {}
 
-  @UseGuards(AuthGuard)
   @Get('/')
   @Render('profile')
-  root(@Req() req) {
-    const rooms = this.roomsService.findAll();
-    console.log(rooms);
-    return req.user, rooms;
+  async root(@Req() req) {
+    const rooms = await this.roomsService.findAll();
+    return { user: req.user, rooms };
   }
 
-  @UseGuards(AuthGuard)
   @Post('/')
   @Redirect('/rooms')
-  create(@Body() room, @Req() req) {
-    this.roomsService.create(room.title, req.user.id);
+  create(@Body() room) {
+    this.roomsService.create(room.title);
   }
 
-  @UseGuards(AuthGuard)
   @Get(':id')
   @Render('room')
   async currentRoom(@Param('id') id, @Req() req) {
@@ -53,8 +52,8 @@ export class RoomsController {
       throw new BadRequestException('Undefined id');
     }
 
-    const users = await this.authService.findUsersByIds(data.members);
+    const messages = await this.chatService.getAll(id);
 
-    return { title: data.title, users };
+    return { title: data.title, userId: JSON.stringify(req.user.id), messages };
   }
 }

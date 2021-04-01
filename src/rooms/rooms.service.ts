@@ -9,12 +9,12 @@ export class RoomsService {
     @InjectModel('Rooms') private readonly roomsModel: Model<RoomsDocument>,
   ) {}
 
-  async create(title: string, creatorId: string): Promise<any> {
-    return await this.roomsModel.create({ title, members: [creatorId] });
+  async create(title: string): Promise<any> {
+    return await this.roomsModel.create({ title });
   }
 
-  async findAll(): Promise<any> {
-    return await this.roomsModel.find();
+  findAll() {
+    return this.roomsModel.find();
   }
 
   findById(id: string) {
@@ -22,12 +22,22 @@ export class RoomsService {
   }
 
   findByIdAndUserId(roomId: string, userId: string) {
-    return this.roomsModel.findOne({ _id: roomId, members: { $in: [userId] } });
+    //return this.roomsModel.findOne({ _id: roomId, members: { $in: [userId] } });
   }
 
   addUserToRoom(roomId: string, userId: string) {
     return this.roomsModel.findByIdAndUpdate(roomId, {
       $addToSet: { members: userId },
     });
+  }
+
+  async deleteMember(roomId: string, userId: string): Promise<any> {
+    return await this.roomsModel.findByIdAndUpdate(roomId, {
+      $pull: { members: userId },
+    });
+  }
+
+  async addNewMember(id: string): Promise<any> {
+    //return await this.roomsModel.findByIdAndUpdate(id, { $inc: { members: 1 } });
   }
 }

@@ -9,11 +9,11 @@ import {
 import { RoomsService } from './rooms.service';
 import { AuthService } from '../auth/auth.service';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/modules/auth/auth.guard';
 import { Redirect } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Req } from '@nestjs/common';
-import { ChatService } from 'src/chat/chat.service';
+import { ChatService } from 'src/modules/chat/chat.service';
 
 @Controller('rooms')
 @UseGuards(AuthGuard)

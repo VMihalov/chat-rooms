@@ -10,7 +10,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChatService } from 'src/chat/chat.service';
+import { ChatService } from 'src/modules/chat/chat.service';
 import { RoomsService } from '../rooms.service';
 
 @WebSocketGateway(3001, { namespace: '/rooms' })

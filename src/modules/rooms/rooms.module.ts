@@ -3,9 +3,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RoomsService } from './rooms.service';
 import { RoomsSchema, Rooms } from './schemas/rooms.schema';
 import { RoomsController } from './rooms.controller';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from 'src/modules/auth/auth.module';
 import { RoomsGateway } from './gateways/rooms.gateway';
-import { ChatModule } from 'src/chat/chat.module';
+import { ChatModule } from 'src/modules/chat/chat.module';
 import { RoomsMenuGateway } from './gateways/rooms-menu.gateway';
 
 @Module({

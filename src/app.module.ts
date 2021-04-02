@@ -1,19 +1,38 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { RoomsModule } from './rooms/rooms.module';
-import { ChatModule } from './chat/chat.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { AuthModule } from './modules/auth/auth.module';
+import { RoomsModule } from './modules/rooms/rooms.module';
+import { MailModule } from './modules/mail/mail.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
-    AuthModule,
     ConfigModule.forRoot(),
     MongooseModule.forRoot(
       `mongodb+srv://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@test.avqvx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
+      {
+        useFindAndModify: false,
+      },
     ),
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.MAILER_HOST,
+        port: process.env.MAILER_PORT,
+        secure: true,
+        auth: {
+          user: process.env.MAILER_USER,
+          pass: process.env.MAILER_PASSWORD,
+        },
+      },
+    }),
+    AuthModule,
     RoomsModule,
-    
+    MailerModule,
+    MailModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

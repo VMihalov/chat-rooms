@@ -3,16 +3,20 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UserSchema, User } from './schemas/user.schema';
 import { AuthGuard } from './auth.guard';
+import { MailModule } from 'src/modules/mail/mail.module';
+import { UserModule } from 'src/modules/user/user.module';
+import { Reset, ResetSchema } from './reset.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Reset.name, schema: ResetSchema }]),
     JwtModule.register({
-      secret: 'cat',
+      secret: 'process.env.SECRET_KEY',
       signOptions: { expiresIn: '6h' },
     }),
+    UserModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthGuard],

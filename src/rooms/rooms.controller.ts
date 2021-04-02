@@ -40,11 +40,11 @@ export class RoomsController {
   @Get(':id')
   @Render('room')
   async currentRoom(@Param('id') id, @Req() req) {
-    const isMember = await this.roomsService.findByIdAndUserId(id, req.user.id);
+    //const isMember = await this.roomsService.findByIdAndUserId(id, req.user.id);
 
-    if (isMember === null) {
-      await this.roomsService.addUserToRoom(id, req.user.id);
-    }
+    //if (isMember === null) {
+    //  await this.roomsService.addUserToRoom(id, req.user.id);
+    //}
 
     const data = await this.roomsService.findById(id);
 
@@ -52,8 +52,8 @@ export class RoomsController {
       throw new BadRequestException('Undefined id');
     }
 
-    const messages = await this.chatService.getAll(id);
+    //const messages = await this.chatService.getAll(id);
 
-    return { title: data.title, userId: JSON.stringify(req.user.id), messages };
+    return { title: data.title, userId: JSON.stringify(req.user.id) };
   }
 }

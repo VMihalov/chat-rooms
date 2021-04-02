@@ -9,8 +9,8 @@ export class ChatService {
     @InjectModel('Chat') private readonly chatModel: Model<ChatDocument>,
   ) {}
 
-  getAll(roomsId: string) {
-    return this.chatModel.find({ roomsId });
+  async getAll(roomsId: string) {
+    return await this.chatModel.find({ roomsId });
   }
 
   addMessage(roomsId: string, text: string) {

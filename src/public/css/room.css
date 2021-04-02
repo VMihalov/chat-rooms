@@ -78,13 +78,13 @@ body{
 }
 
 .chat-list .out .chat-message {
-  background: #fc6d4c;
+  background: #4c7bfc;
 }
 
 .chat-list .out .chat-message:before {
   right: -12px;
   border-bottom: 20px solid transparent;
-  border-left: 20px solid #fc6d4c;
+  border-left: 20px solid #4c7bfc;
 }
 
 .card .card-header:first-child {

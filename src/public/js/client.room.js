@@ -1,10 +1,33 @@
-const socket = io('localhost:3001');
+const socket = io('localhost:3001/rooms');
 const roomId = window.location.pathname.substr(7);
 
 $('#overflowDiv').scrollTop($('#overflowDiv')[0].scrollHeight);
 
-socket.on('connect', (user) => {
+socket.on('connect', () => {
   socket.emit('joinToRoom', roomId);
+  socket.emit('getAllMessages', roomId);
+});
+
+socket.on('userJoined', (number) => {
+  $('#members').empty();
+  $('#members').append(`<h1>${number}</h1>`);
+});
+
+socket.on('insertAll', (messages) => {
+  messages.forEach((element) => {
+    $('#messagesList').append(`
+    <li class="out">
+        <div class="chat-img">
+            <img alt="Avatar" src="https://bootdey.com/img/Content/avatar/avatar6.png">
+        </div>
+        <div class="chat-body">
+            <div class="chat-message">
+                <p>${element.text}</p>
+            </div>
+        </div>
+    </li>
+    `);
+  });
 });
 
 socket.on('insertMessage', (data) => {

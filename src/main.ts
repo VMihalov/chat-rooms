@@ -11,9 +11,10 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'src', 'views'));
   app.setViewEngine('hbs');
 
+  app.enableCors({
+    credentials: true,
+  });
   app.use(cookieParser());
-
-  app.enableCors();
 
   await app.listen(3000);
 }

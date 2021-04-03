@@ -1,4 +1,13 @@
-const socket = io('localhost:3001/rooms');
+const socket = io('localhost:3001/rooms', {
+  withCredentials: false,
+  transportOptions: {
+    polling: {
+      extraHeaders: {
+        Authorization: 'Bearer ' + token,
+      },
+    },
+  },
+});
 const roomId = window.location.pathname.substr(7);
 
 socket.on('connect', () => {

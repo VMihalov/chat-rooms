@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards, Request } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -8,8 +8,12 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RoomsService } from '../rooms.service';
+import { WsJwtAuthGuard } from 'src/modules/auth/guards/ws.jwt.auth.guard';
 
-@WebSocketGateway(3001, { namespace: '/menu' })
+@UseGuards(WsJwtAuthGuard)
+@WebSocketGateway(3001, {
+  namespace: '/menu',
+})
 export class RoomsMenuGateway {
   constructor(private roomsService: RoomsService) {}
   @WebSocketServer() server: Server;
@@ -21,7 +25,7 @@ export class RoomsMenuGateway {
   }
 
   @SubscribeMessage('getAll')
-  getAll(@ConnectedSocket() socket: Socket) {
+  getAll(@ConnectedSocket() socket: Socket, @Request() req) {
     this.roomsService.findAll().then((rooms) => {
       socket.emit('getRooms', rooms);
     });

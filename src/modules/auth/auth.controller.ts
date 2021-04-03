@@ -5,15 +5,13 @@ import {
   Render,
   Body,
   Redirect,
-  NotAcceptableException,
   Res,
-  UseGuards,
-  Req,
   BadRequestException,
   Param,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { randomBytes, createHash } from 'crypto';
+import { randomBytes } from 'crypto';
+import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/modules/mail/mail.service';
 import { UserService } from 'src/modules/user/user.service';
 import { AuthService } from './auth.service';
@@ -44,7 +42,11 @@ export class AuthController {
   async create(@Body() userDto: UserDto) {
     const findUser = await this.userService.findAll(userDto.email);
 
-    if (findUser.length) throw new NotAcceptableException('User exists');
+    if (findUser.length) throw new BadRequestException('User exists');
+
+    const hash = await bcrypt.hash(userDto.password, 10);
+
+    userDto.password = hash;
 
     this.userService.creteUser(userDto);
   }
@@ -53,7 +55,11 @@ export class AuthController {
   async auth(@Body() userDto: UserDto, @Res() res) {
     const findUser = await this.userService.findOne(userDto);
 
-    if (!findUser) throw new NotAcceptableException('User not found');
+    if (!findUser) throw new BadRequestException('User not found');
+
+    const isMatch = await bcrypt.compare(userDto.password, findUser.password);
+
+    if (!isMatch) throw new BadRequestException('Incorrect email or password')
 
     const token = this.authService.login(findUser._id, userDto.email);
 
@@ -92,13 +98,15 @@ export class AuthController {
   }
 
   @Post('reset/:token')
-  updatePassword(@Param('token') token, @Body() body, @Res() res) {
+  async updatePassword(@Param('token') token, @Body() body, @Res() res) {
+    const hash = await bcrypt.hash(body.password, 10);
     this.authService.findResetProfile(token).then((profile) => {
       if (!profile) throw new BadRequestException('Invalid token');
 
       if (!profile.valid) {
         res.redirect('/auth/reset/' + token);
       } else {
+        body.password = hash;
         this.userService
           .findOneByIdAndUpdatePassword(profile.userId, body.password)
           .then(() => {

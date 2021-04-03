@@ -20,7 +20,6 @@ export class UserService {
   findOne(user) {
     return this.userModel.findOne({
       email: user.email,
-      password: user.password,
     });
   }
 
@@ -30,6 +29,10 @@ export class UserService {
 
   async findOneById(id: string): Promise<any> {
     return await this.userModel.findOne({ _id: id });
+  }
+
+  async findOneByEmail(email: string): Promise<any> {
+    return await this.userModel.findOne({ email });
   }
 
   async findOneByIdAndUpdatePassword(id, password: string): Promise<any> {

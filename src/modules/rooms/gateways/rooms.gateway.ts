@@ -1,19 +1,31 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WsJwtAuthGuard } from 'src/modules/auth/guards/ws.jwt.auth.guard';
 import { ChatService } from 'src/modules/chat/chat.service';
 import { RoomsService } from '../rooms.service';
 
-@WebSocketGateway(3001, { namespace: '/rooms' })
+@UseGuards(WsJwtAuthGuard)
+@WebSocketGateway(3001, {
+  namespace: '/rooms',
+
+  handlePreflightRequest: (req, res) => {
+    res.writeHead(200, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': false,
+      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization',
+    });
+    res.end();
+  },
+})
 export class RoomsGateway implements OnGatewayInit {
   constructor(
     private roomsService: RoomsService,

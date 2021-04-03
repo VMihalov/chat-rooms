@@ -1,4 +1,13 @@
-const socket = io('localhost:3001/menu');
+const socket = io('localhost:3001/menu', {
+  withCredentials: false,
+  transportOptions: {
+    polling: {
+      extraHeaders: {
+        Authorization: 'Bearer ' + token,
+      },
+    },
+  },
+});
 
 socket.on('connect', () => {
   socket.emit('getAll');

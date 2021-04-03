@@ -7,10 +7,11 @@ import {
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class JwtAuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
   canActivate(context: ExecutionContext) {
+    console.log('tut');
     const req = context.switchToHttp().getRequest();
 
     const token = req.cookies.jwt;

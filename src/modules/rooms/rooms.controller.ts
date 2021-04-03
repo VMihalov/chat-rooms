@@ -9,14 +9,14 @@ import {
 import { RoomsService } from './rooms.service';
 import { AuthService } from '../auth/auth.service';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/modules/auth/auth.guard';
 import { Redirect } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Req } from '@nestjs/common';
 import { ChatService } from 'src/modules/chat/chat.service';
+import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 
 @Controller('rooms')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 export class RoomsController {
   constructor(
     private roomsService: RoomsService,
@@ -25,10 +25,10 @@ export class RoomsController {
   ) {}
 
   @Get('/')
-  @Render('profile')
+  @Render('roomsMenu')
   async root(@Req() req) {
     const rooms = await this.roomsService.findAll();
-    return { user: req.user, rooms };
+    return { user: req.user, token: req.cookies.jwt, rooms };
   }
 
   @Post('/')
@@ -46,6 +46,10 @@ export class RoomsController {
       throw new BadRequestException('Undefined id');
     }
 
-    return { title: data.title, userId: JSON.stringify(req.user.id) };
+    return {
+      title: data.title,
+      userId: JSON.stringify(req.user.id),
+      token: req.cookies.jwt,
+    };
   }
 }

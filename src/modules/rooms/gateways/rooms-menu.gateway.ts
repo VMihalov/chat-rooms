@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -13,10 +14,16 @@ export class RoomsMenuGateway {
   constructor(private roomsService: RoomsService) {}
   @WebSocketServer() server: Server;
 
+  private logger = new Logger();
+
+  afterInit() {
+    this.logger.log('Initialized RoomsMenuGateway');
+  }
+
   @SubscribeMessage('getAll')
-  getAll() {
+  getAll(@ConnectedSocket() socket: Socket) {
     this.roomsService.findAll().then((rooms) => {
-      this.server.emit('getRooms', rooms);
+      socket.emit('getRooms', rooms);
     });
   }
 

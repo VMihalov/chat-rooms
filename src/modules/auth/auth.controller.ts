@@ -63,7 +63,9 @@ export class AuthController {
 
   @Get('reset')
   @Render('reset')
-  resetPassword() {}
+  resetPassword() {
+    return;
+  }
 
   @Post('reset')
   @Redirect('/auth/login')
@@ -112,5 +114,6 @@ export class AuthController {
   @Redirect('/auth/login')
   logout(@Res() res) {
     res.clearCookie('jwt');
+    res.clearCookie('io');
   }
 }

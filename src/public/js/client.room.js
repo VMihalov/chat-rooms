@@ -1,8 +1,6 @@
 const socket = io('localhost:3001/rooms');
 const roomId = window.location.pathname.substr(7);
 
-$('#overflowDiv').scrollTop($('#overflowDiv')[0].scrollHeight);
-
 socket.on('connect', () => {
   socket.emit('joinToRoom', roomId);
   socket.emit('getAllMessages', roomId);
@@ -28,6 +26,8 @@ socket.on('insertAll', (messages) => {
     </li>
     `);
   });
+
+  $('#overflowDiv').scrollTop($('#overflowDiv')[0].scrollHeight);
 });
 
 socket.on('insertMessage', (data) => {

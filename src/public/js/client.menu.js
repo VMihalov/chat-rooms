@@ -45,4 +45,4 @@ $('#addRoom').on('click', () => {
 $('#search').on('input', () => {
   const text = $('#search').val();
   socket.emit('searchReq', text);
-})
+});

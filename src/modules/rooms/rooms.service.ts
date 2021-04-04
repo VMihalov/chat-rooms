@@ -9,11 +9,11 @@ export class RoomsService {
     @InjectModel('Rooms') private readonly roomsModel: Model<RoomsDocument>,
   ) {}
 
-  async create(title: string): Promise<any> {
+  async create(title: string): Promise<RoomsDocument> {
     return await this.roomsModel.create({ title });
   }
 
-  async findAll() {
+  async findAll(): Promise<RoomsDocument[]> {
     return await this.roomsModel.find();
   }
 
@@ -21,12 +21,10 @@ export class RoomsService {
     return this.roomsModel.findById(id);
   }
 
-  findByIdAndUserId(roomId: string, userId: string) {
-    //return this.roomsModel.findOne({ _id: roomId, members: { $in: [userId] } });
-  }
-
-  async findRoom(title: string): Promise<any> {
-    return await this.roomsModel.find({ title: { $regex: title, $options: 'i' } });
+  async findRoom(title: string): Promise<RoomsDocument[]> {
+    return await this.roomsModel.find({
+      title: { $regex: title, $options: 'i' },
+    });
   }
 
   addUserToRoom(roomId: string, userId: string) {
@@ -35,13 +33,9 @@ export class RoomsService {
     });
   }
 
-  async deleteMember(roomId: string, userId: string): Promise<any> {
+  async deleteMember(roomId: string, userId: string): Promise<RoomsDocument> {
     return await this.roomsModel.findByIdAndUpdate(roomId, {
       $pull: { members: userId },
     });
-  }
-
-  async addNewMember(id: string): Promise<any> {
-    //return await this.roomsModel.findByIdAndUpdate(id, { $inc: { members: 1 } });
   }
 }

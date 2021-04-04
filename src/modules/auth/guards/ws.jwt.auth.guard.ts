@@ -17,7 +17,7 @@ export class WsJwtAuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext) {
     try {
-      const token = context
+      const token: string = context
         .switchToHttp()
         .getRequest()
         .handshake.headers.authorization.substr(7);

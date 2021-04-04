@@ -5,6 +5,8 @@ import { Model } from 'mongoose';
 import { randomBytes, pbkdf2Sync } from 'crypto';
 import { Reset, ResetDocument } from './reset.schema';
 import { TokenService } from '../token/token.service';
+import { TokenDocument } from '../token/token.schema';
+import { IPayload } from '../token/interfaces/payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -14,32 +16,32 @@ export class AuthService {
     private tokenService: TokenService,
   ) {}
 
-  async createResetProfile(id: string, token: string): Promise<any> {
+  async createResetProfile(id: string, token: string): Promise<ResetDocument> {
     return await this.resetSchema.create({ userId: id, token });
   }
 
-  async findResetProfile(token: string): Promise<any> {
+  async findResetProfile(token: string): Promise<ResetDocument> {
     return await this.resetSchema.findOne({ token });
   }
 
-  async deleteResetProfile(id): Promise<any> {
+  async deleteResetProfile(id: string): Promise<ResetDocument> {
     return await this.resetSchema.findOneAndDelete({ _id: id });
   }
 
-  async changeValid(id): Promise<any> {
+  async changeValid(id: string): Promise<ResetDocument> {
     return await this.resetSchema.findOneAndUpdate(
       { _id: id },
       { valid: false },
     );
   }
 
-  login(id, email) {
-    const payload = {
+  login(id: string, email: string) {
+    const payload: IPayload = {
       id,
       email,
     };
 
-    const access_token = this.tokenService.createAccessToken(payload);
+    const access_token: string = this.tokenService.createAccessToken(payload);
 
     this.tokenService.createTokenProfile(access_token);
 
@@ -48,7 +50,7 @@ export class AuthService {
     };
   }
 
-  async logout(access_token: string): Promise<any> {
+  async logout(access_token: string): Promise<TokenDocument> {
     return await this.tokenService
       .getTokenProfile(access_token)
       .then((profile) => {

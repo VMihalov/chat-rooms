@@ -1,4 +1,4 @@
-import { Logger, UseGuards, Request } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -25,15 +25,15 @@ export class RoomsMenuGateway {
   }
 
   @SubscribeMessage('getAll')
-  getAll(@ConnectedSocket() socket: Socket, @Request() req) {
+  getAll(@ConnectedSocket() socket: Socket) {
     this.roomsService.findAll().then((rooms) => {
       socket.emit('getRooms', rooms);
     });
   }
 
   @SubscribeMessage('createRoom')
-  createRoom(@MessageBody() body) {
-    this.roomsService.create(body).then((value) => {
+  createRoom(@MessageBody() title: string) {
+    this.roomsService.create(title).then((value) => {
       this.server.local.emit('insertRoom', {
         id: value._id,
         title: value.title,

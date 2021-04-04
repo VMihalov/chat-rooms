@@ -2,16 +2,19 @@ import {
   BadRequestException,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Render,
 } from '@nestjs/common';
-import { RoomsService } from './rooms.service';
-import { AuthService } from '../auth/auth.service';
 import { UseGuards } from '@nestjs/common';
 import { Redirect } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Req } from '@nestjs/common';
+import { Request } from 'express';
+import { RoomsService } from './rooms.service';
+import { AuthService } from '../auth/auth.service';
 import { ChatService } from 'src/modules/chat/chat.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 
@@ -25,21 +28,23 @@ export class RoomsController {
   ) {}
 
   @Get('/')
+  @HttpCode(HttpStatus.OK)
   @Render('roomsMenu')
-  async root(@Req() req) {
+  async root(@Req() req: Request) {
     const rooms = await this.roomsService.findAll();
     return { user: req.user, token: req.cookies.jwt, rooms };
   }
 
   @Post('/')
   @Redirect('/rooms')
-  create(@Body() room) {
-    this.roomsService.create(room.title);
+  create(@Body('title') title) {
+    this.roomsService.create(title);
   }
 
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   @Render('room')
-  async currentRoom(@Param('id') id, @Req() req) {
+  async currentRoom(@Param('id') id: string, @Req() req: Request | any) {
     const data = await this.roomsService.findById(id);
 
     if (!data) {

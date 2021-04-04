@@ -17,7 +17,11 @@ socket.on('connect', () => {
 
 socket.on('userJoined', (number) => {
   $('#members').empty();
-  $('#members').append(`<h1>${number}</h1>`);
+  //$('#members').append(`<h1>${number}</h1>`);
+  for (let i = 0; i < number; i++)
+    $('#members').append(`
+    <img src="/images/avatar.png" alt="Avatar" class="md-avatar">
+    `);
 });
 
 socket.on('insertAll', (messages) => {
@@ -43,7 +47,7 @@ socket.on('insertMessage', (data) => {
   $('#messagesList').append(`
   <li class="out">
       <div class="chat-img">
-          <img alt="Avatar" src="https://bootdey.com/img/Content/avatar/avatar6.png">
+          <img alt="Avatar" src="/images/avatar.png">
       </div>
       <div class="chat-body">
           <div class="chat-message">

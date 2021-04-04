@@ -9,6 +9,8 @@ import {
   BadRequestException,
   Param,
   Req,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { randomBytes } from 'crypto';
@@ -27,12 +29,14 @@ export class AuthController {
   ) {}
 
   @Get('login')
+  @HttpCode(HttpStatus.OK)
   @Render('auth/login')
   login() {
     return;
   }
 
   @Get('sign-up')
+  @HttpCode(HttpStatus.OK)
   @Render('auth/signup')
   signUp() {
     return;
@@ -45,7 +49,7 @@ export class AuthController {
 
     if (findUser.length) throw new BadRequestException('User exists');
 
-    const hash = await bcrypt.hash(userDto.password, 10);
+    const hash: string = await bcrypt.hash(userDto.password, 10);
 
     userDto.password = hash;
 
@@ -53,8 +57,8 @@ export class AuthController {
   }
 
   @Post('login')
-  async auth(@Body() userDto: UserDto, @Res() res) {
-    const findUser = await this.userService.findOne(userDto);
+  async auth(@Body() userDto: UserDto, @Res() res: Response) {
+    const findUser = await this.userService.findOne(userDto.email);
 
     if (!findUser) throw new BadRequestException('User not found');
 
@@ -69,6 +73,7 @@ export class AuthController {
   }
 
   @Get('reset')
+  @HttpCode(HttpStatus.OK)
   @Render('auth/password/reset')
   resetPassword() {
     return;
@@ -76,21 +81,22 @@ export class AuthController {
 
   @Post('reset')
   @Redirect('/auth/login')
-  async reset(@Body() user) {
-    const person = await this.userService.findByEmail(user.email);
+  async reset(@Body('email') email: string) {
+    const person = await this.userService.findByEmail(email);
 
     if (!person) throw new BadRequestException('User not found');
 
     const token = randomBytes(40).toString('hex');
 
     this.authService.createResetProfile(person._id, token).then((value) => {
-      this.mailService.send(user.email, value.token);
+      this.mailService.send(email, value.token);
     });
   }
 
   @Get('reset/:token')
+  @HttpCode(HttpStatus.OK)
   @Render('auth/password/update')
-  async resetLink(@Param('token') token) {
+  async resetLink(@Param('token') token: string) {
     const profile = await this.authService.findResetProfile(token);
 
     if (!profile) throw new BadRequestException('Invalid token');
@@ -99,17 +105,21 @@ export class AuthController {
   }
 
   @Post('reset/:token')
-  async updatePassword(@Param('token') token, @Body() body, @Res() res) {
-    const hash = await bcrypt.hash(body.password, 10);
+  async updatePassword(
+    @Param('token') token: string,
+    @Body('password') password: string,
+    @Res() res: Response,
+  ) {
+    const hash = await bcrypt.hash(password, 10);
     this.authService.findResetProfile(token).then((profile) => {
       if (!profile) throw new BadRequestException('Invalid token');
 
       if (!profile.valid) {
         res.redirect('/auth/reset/' + token);
       } else {
-        body.password = hash;
+        password = hash;
         this.userService
-          .findOneByIdAndUpdatePassword(profile.userId, body.password)
+          .findOneByIdAndUpdatePassword(profile.userId, password)
           .then(() => {
             this.authService.changeValid(profile._id);
             res.redirect('/auth/reset/' + token);
@@ -120,6 +130,7 @@ export class AuthController {
   }
 
   @Get('logout')
+  @HttpCode(HttpStatus.OK)
   @Redirect('/auth/login')
   logout(@Res() res: Response, @Req() req: Request) {
     this.authService.logout(req.cookies.jwt);

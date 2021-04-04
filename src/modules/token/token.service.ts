@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { IPayload } from './interfaces/payload.interface';
 import { TokenDocument, Token } from './token.schema';
 
 @Injectable()
@@ -11,41 +12,41 @@ export class TokenService {
     private jwtService: JwtService,
   ) {}
 
-  createAccessToken(payload) {
+  createAccessToken(payload: IPayload): string {
     return this.jwtService.sign(payload, {
       expiresIn: '30m',
     });
   }
 
-  createRefreshToken(payload) {
+  createRefreshToken(payload): string {
     return this.jwtService.sign(payload, {
-      expiresIn: '1d',
+      expiresIn: '7d',
     });
   }
 
-  createTokenProfile(access_token) {
+  createTokenProfile(access_token: string): Promise<TokenDocument> {
     const refresh_token = this.createRefreshToken({});
 
     return this.tokenModel.create({ access_token, refresh_token });
   }
 
-  deleteTokenProfile(id) {
+  deleteTokenProfile(id: string): any {
     return this.tokenModel.findByIdAndDelete(id);
   }
 
-  async getTokenProfile(access_token): Promise<any> {
+  async getTokenProfile(access_token: string): Promise<TokenDocument> {
     return await this.tokenModel.findOne({ access_token });
   }
 
-  verify(token: string) {
+  verify(token: string): TokenDocument {
     return this.jwtService.verify(token);
   }
 
-  verifyAsync(token: string): Promise<any> {
+  verifyAsync(token: string): Promise<TokenDocument> {
     return this.jwtService.verifyAsync(token);
   }
 
-  decode(token: string) {
+  decode(token: string): string | { [key: string]: number } {
     return this.jwtService.decode(token);
   }
 }

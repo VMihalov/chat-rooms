@@ -105,3 +105,9 @@ body{
 .content{
   margin-top:40px;    
 }
+
+.md-avatar {
+  vertical-align: middle;
+  width: 75px;
+  height: 75px;
+}

@@ -11,35 +11,38 @@ export class UserService {
     return this.userModel.create(user);
   }
 
-  findAll(email: string) {
+  findAll(email: string): UserDocument[] | UserDocument | any {
     return this.userModel.find({
       email,
     });
   }
 
-  findOne(user) {
+  findOne(email: string): UserDocument | any {
     return this.userModel.findOne({
-      email: user.email,
+      email,
     });
   }
 
-  findById(ids: Array<string>) {
+  findById(ids: Array<string>): UserDocument[] | UserDocument | any {
     return this.userModel.find({ _id: { $in: ids } });
   }
 
-  async findOneById(id: string): Promise<any> {
+  async findOneById(id: string): Promise<UserDocument> {
     return await this.userModel.findOne({ _id: id });
   }
 
-  async findOneByEmail(email: string): Promise<any> {
+  async findOneByEmail(email: string): Promise<UserDocument> {
     return await this.userModel.findOne({ email });
   }
 
-  async findOneByIdAndUpdatePassword(id, password: string): Promise<any> {
+  async findOneByIdAndUpdatePassword(
+    id: string,
+    password: string,
+  ): Promise<any> {
     await this.userModel.findOneAndUpdate({ _id: id }, { password });
   }
 
-  findByEmail(email: string) {
+  findByEmail(email: string): UserDocument | any {
     return this.userModel.findOne({ email });
   }
 }

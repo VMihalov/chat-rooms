@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { TokenService } from 'src/modules/token/token.service';
+import { Response, Request } from 'express';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -15,9 +16,9 @@ export class JwtAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext) {
-    const req = context.switchToHttp().getRequest();
-    const res = context.switchToHttp().getResponse();
-    const token = req.cookies.jwt;
+    const req: Request = context.switchToHttp().getRequest();
+    const res: Response = context.switchToHttp().getResponse();
+    const token: string = req.cookies.jwt;
 
     try {
       await this.tokenService.verify(token);
@@ -37,7 +38,10 @@ export class JwtAuthGuard implements CanActivate {
         delete payload['iat'];
         delete payload['exp'];
 
-        const access_token = await this.tokenService.createAccessToken(payload);
+        const access_token: string = await this.tokenService.createAccessToken({
+          id: payload['id'],
+          email: payload['email'],
+        });
 
         await this.tokenService.createTokenProfile(access_token);
         await this.tokenService.deleteTokenProfile(profile._id);

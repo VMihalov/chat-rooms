@@ -10,7 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { WsJwtAuthGuard } from 'src/modules/auth/guards/ws.jwt.auth.guard';
 import { ChatService } from 'src/modules/chat/chat.service';
-import { RoomsService } from '../rooms.service';
+import { AddMessageDto } from '../dto/add-message.dto';
 
 @UseGuards(WsJwtAuthGuard)
 @WebSocketGateway(3001, {
@@ -27,10 +27,7 @@ import { RoomsService } from '../rooms.service';
   },
 })
 export class RoomsGateway implements OnGatewayInit {
-  constructor(
-    private roomsService: RoomsService,
-    private chatService: ChatService,
-  ) {}
+  constructor(private chatService: ChatService) {}
 
   @WebSocketServer() server: Server;
 
@@ -41,14 +38,17 @@ export class RoomsGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('joinToRoom')
-  joinToRoom(@MessageBody() roomId, @ConnectedSocket() socket: Socket) {
+  joinToRoom(@MessageBody() roomId: string, @ConnectedSocket() socket: Socket) {
     socket.join(roomId);
-    const numberOfUsers = this.server.in(roomId).adapter.rooms[roomId].length;
+    const numberOfUsers: number = this.server.in(roomId).adapter.rooms[roomId]
+      .length;
 
     this.server.in(roomId).emit('userJoined', numberOfUsers);
 
     socket.on('disconnect', () => {
-      const getRoom = this.server.in(roomId).adapter.rooms[roomId];
+      const getRoom: SocketIO.Room = this.server.in(roomId).adapter.rooms[
+        roomId
+      ];
 
       if (getRoom)
         return this.server.in(roomId).emit('userJoined', getRoom.length);
@@ -58,16 +58,21 @@ export class RoomsGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('getAllMessages')
-  getAllMessages(@MessageBody() roomId, @ConnectedSocket() socket: Socket) {
+  getAllMessages(
+    @MessageBody() roomId: string,
+    @ConnectedSocket() socket: Socket,
+  ) {
     this.chatService.getAll(roomId).then((messages) => {
       socket.emit('insertAll', messages);
     });
   }
 
   @SubscribeMessage('addMessage')
-  addMessage(@MessageBody() body, @ConnectedSocket() socket: Socket) {
-    this.chatService.addMessage(body.roomId, body.text).then((value) => {
-      this.server.in(body.roomId).emit('insertMessage', value.text);
-    });
+  addMessage(@MessageBody() addMessageDto: AddMessageDto) {
+    this.chatService
+      .addMessage(addMessageDto.roomId, addMessageDto.text)
+      .then((value) => {
+        this.server.in(addMessageDto.roomId).emit('insertMessage', value.text);
+      });
   }
 }

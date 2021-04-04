@@ -7,7 +7,7 @@ import { RoomsModule } from './modules/rooms/rooms.module';
 import { MailModule } from './modules/mail/mail.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthMiddleware } from './modules/auth/middlewares/auth.middleware';
-
+import { TokenModule } from './modules/token/token.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -33,6 +33,7 @@ import { AuthMiddleware } from './modules/auth/middlewares/auth.middleware';
     MailerModule,
     MailModule,
     UserModule,
+    TokenModule,
   ],
   controllers: [],
   providers: [],

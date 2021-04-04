@@ -6,22 +6,20 @@ import { AuthService } from './auth.service';
 import { MailModule } from 'src/modules/mail/mail.module';
 import { UserModule } from 'src/modules/user/user.module';
 import { Reset, ResetSchema } from './reset.schema';
-import { JwtAuthGuard } from './guards/jwt.auth.guard';
+import { JwtAuthGuard } from './guards/old.jwt.auth.guard';
 import { JwtStrategy } from './jwt.strategy';
 import { WsJwtAuthGuard } from './guards/ws.jwt.auth.guard';
+import { TokenModule } from '../token/token.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Reset.name, schema: ResetSchema }]),
-    JwtModule.register({
-      secret: 'cat',
-      signOptions: { expiresIn: '1h' },
-    }),
     UserModule,
     MailModule,
+    TokenModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtAuthGuard, JwtStrategy, WsJwtAuthGuard],
-  exports: [JwtModule, AuthService, JwtAuthGuard, WsJwtAuthGuard],
+  exports: [AuthService, JwtAuthGuard, WsJwtAuthGuard],
 })
 export class AuthModule {}

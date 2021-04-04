@@ -8,8 +8,9 @@ import {
   Res,
   BadRequestException,
   Param,
+  Req,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/modules/mail/mail.service';
@@ -26,13 +27,13 @@ export class AuthController {
   ) {}
 
   @Get('login')
-  @Render('login')
+  @Render('auth/login')
   login() {
     return;
   }
 
   @Get('sign-up')
-  @Render('signup')
+  @Render('auth/signup')
   signUp() {
     return;
   }
@@ -59,16 +60,16 @@ export class AuthController {
 
     const isMatch = await bcrypt.compare(userDto.password, findUser.password);
 
-    if (!isMatch) throw new BadRequestException('Incorrect email or password')
+    if (!isMatch) throw new BadRequestException('Incorrect email or password');
 
-    const token = this.authService.login(findUser._id, userDto.email);
+    const token = await this.authService.login(findUser._id, userDto.email);
 
     res.cookie('jwt', token.access_token, { httpOnly: true });
     res.redirect('../rooms');
   }
 
   @Get('reset')
-  @Render('reset')
+  @Render('auth/password/reset')
   resetPassword() {
     return;
   }
@@ -88,7 +89,7 @@ export class AuthController {
   }
 
   @Get('reset/:token')
-  @Render('updatePassword')
+  @Render('auth/password/update')
   async resetLink(@Param('token') token) {
     const profile = await this.authService.findResetProfile(token);
 
@@ -120,7 +121,8 @@ export class AuthController {
 
   @Get('logout')
   @Redirect('/auth/login')
-  logout(@Res() res) {
+  logout(@Res() res: Response, @Req() req: Request) {
+    this.authService.logout(req.cookies.jwt);
     res.clearCookie('jwt');
     res.clearCookie('io');
   }

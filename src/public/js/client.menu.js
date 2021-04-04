@@ -14,6 +14,7 @@ socket.on('connect', () => {
 });
 
 socket.on('getRooms', (rooms) => {
+  $('#roomsContainer').empty();
   rooms.forEach((element) => {
     $('#roomsContainer').append(`
     <div class="card border-dark">
@@ -40,3 +41,8 @@ $('#addRoom').on('click', () => {
   $('#roomsText').val('');
   socket.emit('createRoom', title);
 });
+
+$('#search').on('input', () => {
+  const text = $('#search').val();
+  socket.emit('searchReq', text);
+})

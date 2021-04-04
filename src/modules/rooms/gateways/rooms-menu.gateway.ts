@@ -40,4 +40,11 @@ export class RoomsMenuGateway {
       });
     });
   }
+
+  @SubscribeMessage('searchReq')
+  searchReq(@MessageBody() title: string, @ConnectedSocket() socket: Socket) {
+    this.roomsService.findRoom(title).then((rooms) => {
+      socket.emit('getRooms', rooms);
+    });
+  }
 }

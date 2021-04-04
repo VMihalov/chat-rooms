@@ -9,6 +9,7 @@ import { RoomsGateway } from './gateways/rooms.gateway';
 import { ChatModule } from 'src/modules/chat/chat.module';
 import { RoomsMenuGateway } from './gateways/rooms-menu.gateway';
 import { UserModule } from '../user/user.module';
+import { TokenModule } from '../token/token.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserModule } from '../user/user.module';
     ChatModule,
     PassportModule,
     UserModule,
+    TokenModule,
   ],
   providers: [RoomsService, RoomsGateway, RoomsMenuGateway],
   exports: [RoomsService],

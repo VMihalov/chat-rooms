@@ -25,6 +25,10 @@ export class RoomsService {
     //return this.roomsModel.findOne({ _id: roomId, members: { $in: [userId] } });
   }
 
+  async findRoom(title: string): Promise<any> {
+    return await this.roomsModel.find({ title: { $regex: title, $options: 'i' } });
+  }
+
   addUserToRoom(roomId: string, userId: string) {
     return this.roomsModel.findByIdAndUpdate(roomId, {
       $addToSet: { members: userId },

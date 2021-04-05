@@ -37,7 +37,7 @@ export class RoomsController {
 
   @Post('/')
   @Redirect('/rooms')
-  create(@Body('title') title) {
+  create(@Body('title') title: string) {
     this.roomsService.create(title);
   }
 

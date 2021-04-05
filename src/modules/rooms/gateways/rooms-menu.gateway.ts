@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseFilters, UseGuards, UsePipes } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,8 +9,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { RoomsService } from '../rooms.service';
 import { WsJwtAuthGuard } from 'src/modules/auth/guards/ws.jwt.auth.guard';
+import { RoomsFilter } from '../filters/rooms.filter';
+import { RoomsMenuPipe } from '../pipes/rooms-menu.pipe';
 
 @UseGuards(WsJwtAuthGuard)
+@UseFilters(RoomsFilter)
 @WebSocketGateway(3001, {
   namespace: '/menu',
 })
@@ -32,7 +35,7 @@ export class RoomsMenuGateway {
   }
 
   @SubscribeMessage('createRoom')
-  createRoom(@MessageBody() title: string) {
+  createRoom(@MessageBody(RoomsMenuPipe) title) {
     this.roomsService.create(title).then((value) => {
       this.server.local.emit('insertRoom', {
         id: value._id,

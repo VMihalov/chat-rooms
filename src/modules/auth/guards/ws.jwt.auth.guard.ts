@@ -24,12 +24,12 @@ export class WsJwtAuthGuard implements CanActivate {
 
       const verify = this.jwtService.verify(token);
 
-      if (!verify) throw new UnauthorizedException('Invalid token');
+      if (!verify) throw new WsException('Invalid token');
 
       const decode = this.jwtService.decode(token);
 
       this.userService.findOneByEmail(decode['email']).then((profile) => {
-        if (!profile) throw new UnauthorizedException('Invalid token');
+        if (!profile) throw new WsException('Invalid token');
       });
 
       return true;

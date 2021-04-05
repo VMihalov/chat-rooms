@@ -11,6 +11,7 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  UseFilters,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { randomBytes } from 'crypto';
@@ -19,7 +20,10 @@ import { MailService } from 'src/modules/mail/mail.service';
 import { UserService } from 'src/modules/user/user.service';
 import { AuthService } from './auth.service';
 import { UserDto } from './dto/user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { AllExceptionsFilter } from './all-exceptions.filter';
 
+@UseFilters(AllExceptionsFilter)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -44,16 +48,16 @@ export class AuthController {
 
   @Post('sign-up')
   @Redirect('login')
-  async create(@Body() userDto: UserDto) {
-    const findUser = await this.userService.findAll(userDto.email);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const findUser = await this.userService.findAll(createUserDto.email);
 
     if (findUser.length) throw new BadRequestException('User exists');
 
-    const hash: string = await bcrypt.hash(userDto.password, 10);
+    const hash: string = await bcrypt.hash(createUserDto.password, 10);
 
-    userDto.password = hash;
+    createUserDto.password = hash;
 
-    this.userService.creteUser(userDto);
+    this.userService.creteUser(createUserDto);
   }
 
   @Post('login')

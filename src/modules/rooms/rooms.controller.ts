@@ -14,22 +14,16 @@ import { Body } from '@nestjs/common';
 import { Req } from '@nestjs/common';
 import { Request } from 'express';
 import { RoomsService } from './rooms.service';
-import { AuthService } from '../auth/auth.service';
-import { ChatService } from 'src/modules/chat/chat.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 
 @Controller('rooms')
 @UseGuards(JwtAuthGuard)
 export class RoomsController {
-  constructor(
-    private roomsService: RoomsService,
-    private authService: AuthService,
-    private chatService: ChatService,
-  ) {}
+  constructor(private roomsService: RoomsService) {}
 
   @Get('/')
   @HttpCode(HttpStatus.OK)
-  @Render('roomsMenu')
+  @Render('rooms/rooms')
   async root(@Req() req: Request) {
     const rooms = await this.roomsService.findAll();
     return { user: req.user, token: req.cookies.jwt, rooms };
@@ -43,7 +37,7 @@ export class RoomsController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @Render('room')
+  @Render('rooms/singleRoom')
   async currentRoom(@Param('id') id: string, @Req() req: Request | any) {
     const data = await this.roomsService.findById(id);
 

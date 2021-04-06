@@ -12,6 +12,7 @@ import {
   HttpCode,
   HttpStatus,
   UseFilters,
+  UsePipes,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { randomBytes } from 'crypto';
@@ -21,9 +22,11 @@ import { UserService } from 'src/modules/user/user.service';
 import { AuthService } from './auth.service';
 import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { AllExceptionsFilter } from './all-exceptions.filter';
+import { AuthExceptionsFilter } from './filters/auth.filter';
+import { EmailDto } from './dto/email.dto';
+import { TokenDto } from './dto/token.dto';
 
-@UseFilters(AllExceptionsFilter)
+@UseFilters(AuthExceptionsFilter)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -85,27 +88,27 @@ export class AuthController {
 
   @Post('reset')
   @Redirect('/auth/login')
-  async reset(@Body('email') email: string) {
-    const person = await this.userService.findByEmail(email);
+  async reset(@Body() body: EmailDto) {
+    const person = await this.userService.findByEmail(body.email);
 
     if (!person) throw new BadRequestException('User not found');
 
     const token = randomBytes(40).toString('hex');
 
     this.authService.createResetProfile(person._id, token).then((value) => {
-      this.mailService.send(email, value.token);
+      this.mailService.send(body.email, value.token);
     });
   }
 
   @Get('reset/:token')
   @HttpCode(HttpStatus.OK)
   @Render('auth/password/update')
-  async resetLink(@Param('token') token: string) {
-    const profile = await this.authService.findResetProfile(token);
+  async resetLink(@Param() param: TokenDto) {
+    const profile = await this.authService.findResetProfile(param.token);
 
     if (!profile) throw new BadRequestException('Invalid token');
 
-    return { token, valid: profile.valid };
+    return { token: param.token, valid: profile.valid };
   }
 
   @Post('reset/:token')

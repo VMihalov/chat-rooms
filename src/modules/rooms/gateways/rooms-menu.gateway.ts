@@ -10,7 +10,7 @@ import { Server, Socket } from 'socket.io';
 import { RoomsService } from '../rooms.service';
 import { WsJwtAuthGuard } from 'src/modules/auth/guards/ws.jwt.auth.guard';
 import { RoomsFilter } from '../filters/rooms.filter';
-import { RoomsMenuPipe } from '../pipes/rooms-menu.pipe';
+import { AddRoomPipe } from '../pipes/add-room.pipe';
 
 @UseGuards(WsJwtAuthGuard)
 @UseFilters(RoomsFilter)
@@ -35,7 +35,7 @@ export class RoomsMenuGateway {
   }
 
   @SubscribeMessage('createRoom')
-  createRoom(@MessageBody(RoomsMenuPipe) title) {
+  createRoom(@MessageBody(AddRoomPipe) title) {
     this.roomsService.create(title).then((value) => {
       this.server.local.emit('insertRoom', {
         id: value._id,

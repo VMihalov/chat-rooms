@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,9 +10,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { WsJwtAuthGuard } from 'src/modules/auth/guards/ws.jwt.auth.guard';
 import { ChatService } from 'src/modules/chat/chat.service';
-import { AddMessageDto } from '../dto/add-message.dto';
+import { RoomsFilter } from '../filters/rooms.filter';
+import { AddMessagePipe } from '../pipes/add-message.pipe';
 
 @UseGuards(WsJwtAuthGuard)
+@UseFilters(RoomsFilter)
 @WebSocketGateway(3001, {
   namespace: '/rooms',
 
@@ -68,7 +70,7 @@ export class RoomsGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('addMessage')
-  addMessage(@MessageBody() addMessageDto: AddMessageDto) {
+  addMessage(@MessageBody(AddMessagePipe) addMessageDto) {
     this.chatService
       .addMessage(addMessageDto.roomId, addMessageDto.text)
       .then((value) => {

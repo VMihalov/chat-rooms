@@ -60,6 +60,18 @@ socket.on('insertMessage', (data) => {
   $('#overflowDiv').scrollTop($('#overflowDiv')[0].scrollHeight);
 });
 
+socket.on('exception', (data) => {
+  console.log(data);
+  $('#error').append(`
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>${data.message}!</strong>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+`);
+});
+
 $('#sendMessage').on('click', () => {
   const text = $('#message').val();
   $('#message').val('');

@@ -111,3 +111,8 @@ body{
   width: 75px;
   height: 75px;
 }
+
+#bottom-input-field {
+  display: block;
+  width: 100%;
+}

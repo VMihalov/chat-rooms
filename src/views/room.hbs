@@ -16,7 +16,7 @@
 </div>
     <div class="container">
         <div class="row">
-            <div class="col-lg-9 col-sm-12 col-12">
+            <div class="col-lg-9 col-sm-12 col-12 mb-3">
                 <div class="card" style="max-height: 80vh;">
                     <div class="card-header">{{ title }}</div>
                     <div id="overflowDiv" class="card-body height3 overflow-auto">
@@ -24,11 +24,9 @@
                             
                         </ul>
                     </div>
-                    <div class="form-inline">
-                        <div class="form-group mx-sm-3 mb-2">
+                    <div id="bottom-input-field">
+                        <div class="col-md-12 d-flex mx-auto p-2">
                             <input class="form-control" id="message" type="text" placeholder="Add text">
-                        </div>
-                        <div class="form-group mx-sm-3 mb-2">
                             <button class="btn btn-primary" id="sendMessage">Submit</button>
                         </div>
                     </div>

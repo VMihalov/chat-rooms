@@ -5,6 +5,7 @@ import { WsException } from '@nestjs/websockets';
 export class RoomsMenuPipe implements PipeTransform<any> {
   async transform(value: string) {
     if (value.length < 1) throw new WsException('Validation error');
+    if (value.length > 40) throw new WsException('Validation error');
 
     return value;
   }

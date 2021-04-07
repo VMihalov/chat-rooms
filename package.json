@@ -1,10 +1,10 @@
 {
-  "name": "task",
-  "version": "0.0.1",
-  "description": "",
+  "name": "chat-rooms",
+  "version": "0.1.0",
+  "description": "A simple application where you can create rooms and chat with friends.",
   "author": "Vladyslav Mihalov",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",

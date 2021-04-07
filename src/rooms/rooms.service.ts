@@ -13,8 +13,8 @@ export class RoomsService {
     return await this.roomsModel.create({ title });
   }
 
-  async findAll(): Promise<RoomsDocument[]> {
-    return await this.roomsModel.find();
+  findAll() {
+    return this.roomsModel.find();
   }
 
   findById(id: string) {

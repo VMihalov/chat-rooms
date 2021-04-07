@@ -12,20 +12,26 @@ import {
   HttpCode,
   HttpStatus,
   UseFilters,
-  UsePipes,
+  Put,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { randomBytes } from 'crypto';
-import * as bcrypt from 'bcrypt';
-import { MailService } from 'src/modules/mail/mail.service';
-import { UserService } from 'src/modules/user/user.service';
+import { MailService } from 'src/mail/mail.service';
+import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
 import { UserDto } from './dto/user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthExceptionsFilter } from './filters/auth.filter';
 import { EmailDto } from './dto/email.dto';
 import { TokenDto } from './dto/token.dto';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('auth')
 @UseFilters(AuthExceptionsFilter)
 @Controller('auth')
 export class AuthController {
@@ -36,13 +42,15 @@ export class AuthController {
   ) {}
 
   @Get('login')
+  @ApiOkResponse({ description: 'The page was successfully opened' })
   @HttpCode(HttpStatus.OK)
   @Render('auth/login')
-  login() {
+  auth() {
     return;
   }
 
   @Get('sign-up')
+  @ApiOkResponse({ description: 'The page was successfully opened' })
   @HttpCode(HttpStatus.OK)
   @Render('auth/signup')
   signUp() {
@@ -50,28 +58,36 @@ export class AuthController {
   }
 
   @Post('sign-up')
+  @ApiCreatedResponse({
+    description: 'The user has been successfully created.',
+  })
   @Redirect('login')
   async create(@Body() createUserDto: CreateUserDto) {
     const findUser = await this.userService.findAll(createUserDto.email);
 
     if (findUser.length) throw new BadRequestException('User exists');
 
-    const hash: string = await bcrypt.hash(createUserDto.password, 10);
-
-    createUserDto.password = hash;
-
-    this.userService.creteUser(createUserDto);
+    this.userService.create(createUserDto);
   }
 
   @Post('login')
-  async auth(@Body() userDto: UserDto, @Res() res: Response) {
+  @ApiResponse({
+    status: 303,
+    description: 'Successful login, redirect to the allowed page',
+  })
+  @ApiBadRequestResponse({ description: 'The resulting user was not found' })
+  async login(@Body() userDto: UserDto, @Res() res: Response) {
     const findUser = await this.userService.findOne(userDto.email);
 
     if (!findUser) throw new BadRequestException('User not found');
 
-    const isMatch = await bcrypt.compare(userDto.password, findUser.password);
+    const validPass = await this.authService.validate(
+      userDto.password,
+      findUser.password,
+    );
 
-    if (!isMatch) throw new BadRequestException('Incorrect email or password');
+    if (!validPass)
+      throw new BadRequestException('Incorrect email or password');
 
     const token = await this.authService.login(findUser._id, userDto.email);
 
@@ -80,6 +96,7 @@ export class AuthController {
   }
 
   @Get('reset')
+  @ApiOkResponse({ description: 'The page was successfully opened' })
   @HttpCode(HttpStatus.OK)
   @Render('auth/password/reset')
   resetPassword() {
@@ -87,13 +104,18 @@ export class AuthController {
   }
 
   @Post('reset')
+  @ApiResponse({
+    status: 303,
+    description: 'The email was successfully sent, redirect to the login page',
+  })
+  @ApiBadRequestResponse({ description: 'User not found' })
   @Redirect('/auth/login')
   async reset(@Body() body: EmailDto) {
     const person = await this.userService.findByEmail(body.email);
 
     if (!person) throw new BadRequestException('User not found');
 
-    const token = randomBytes(40).toString('hex');
+    const token = await this.authService.randomBytes(40);
 
     this.authService.createResetProfile(person._id, token).then((value) => {
       this.mailService.send(body.email, value.token);
@@ -101,6 +123,11 @@ export class AuthController {
   }
 
   @Get('reset/:token')
+  @ApiOkResponse({
+    description:
+      'The correct token was received, the page was successfully opened',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid token' })
   @HttpCode(HttpStatus.OK)
   @Render('auth/password/update')
   async resetLink(@Param() param: TokenDto) {
@@ -111,32 +138,34 @@ export class AuthController {
     return { token: param.token, valid: profile.valid };
   }
 
-  @Post('reset/:token')
+  @Put('reset/:token')
+  @ApiResponse({
+    status: 303,
+    description: 'Password reset correctly, update page',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid token' })
+  @Redirect('back')
   async updatePassword(
     @Param('token') token: string,
     @Body('password') password: string,
-    @Res() res: Response,
   ) {
-    const hash = await bcrypt.hash(password, 10);
-    this.authService.findResetProfile(token).then((profile) => {
-      if (!profile) throw new BadRequestException('Invalid token');
+    const resetProfile = await this.authService.findResetProfile(token);
 
-      if (!profile.valid) {
-        res.redirect('/auth/reset/' + token);
-      } else {
-        password = hash;
-        this.userService
-          .findOneByIdAndUpdatePassword(profile.userId, password)
-          .then(() => {
-            this.authService.changeValid(profile._id);
-            res.redirect('/auth/reset/' + token);
-            res.end();
-          });
-      }
-    });
+    if (!resetProfile) throw new BadRequestException('Invalid token');
+
+    if (resetProfile.valid) {
+      const update = await this.userService.findOneByIdAndUpdatePassword(
+        resetProfile.userId,
+        password,
+      );
+
+      if (update) await this.authService.changeValid(resetProfile._id);
+      else throw new BadRequestException('Error');
+    }
   }
 
   @Get('logout')
+  @ApiResponse({ status: 303, description: 'User successfully logged out' })
   @HttpCode(HttpStatus.OK)
   @Redirect('/auth/login')
   logout(@Res() res: Response, @Req() req: Request) {

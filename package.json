@@ -30,13 +30,15 @@
     "@nestjs/passport": "7.1.5",
     "@nestjs/platform-express": "7.6.15",
     "@nestjs/platform-socket.io": "7.6.15",
+    "@nestjs/swagger": "^4.8.0",
     "@nestjs/websockets": "7.6.15",
     "bcrypt": "5.0.1",
-    "class-transformer": "^0.4.0",
-    "class-validator": "^0.13.1",
+    "class-transformer": "0.4.0",
+    "class-validator": "0.13.1",
     "cookie-parser": "1.4.5",
     "hbs": "4.1.1",
-    "html-entities": "^2.3.2",
+    "html-entities": "2.3.2",
+    "method-override": "^3.0.0",
     "mongoose": "5.12.2",
     "nodemailer": "6.5.0",
     "passport": "0.4.1",
@@ -44,7 +46,8 @@
     "passport-local": "1.0.0",
     "reflect-metadata": "0.1.13",
     "rimraf": "3.0.2",
-    "rxjs": "6.6.6"
+    "rxjs": "6.6.6",
+    "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
     "@nestjs/cli": "7.6.0",

@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { AuthModule } from './modules/auth/auth.module';
-import { RoomsModule } from './modules/rooms/rooms.module';
-import { MailModule } from './modules/mail/mail.module';
-import { UserModule } from './modules/user/user.module';
-import { TokenModule } from './modules/token/token.module';
+import { AuthModule } from './auth/auth.module';
+import { RoomsModule } from './rooms/rooms.module';
+import { MailModule } from './mail/mail.module';
+import { UserModule } from './user/user.module';
+import { TokenModule } from './token/token.module';
 
 @Module({
   imports: [
@@ -34,8 +34,8 @@ import { TokenModule } from './modules/token/token.module';
     RoomsModule,
     MailerModule,
     MailModule,
-    UserModule,
     TokenModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

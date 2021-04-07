@@ -5,23 +5,24 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Render,
 } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { Redirect } from '@nestjs/common';
-import { Body } from '@nestjs/common';
 import { Req } from '@nestjs/common';
 import { Request } from 'express';
 import { RoomsService } from './rooms.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
+import { ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('rooms')
+@ApiCookieAuth()
 @Controller('rooms')
 @UseGuards(JwtAuthGuard)
 export class RoomsController {
   constructor(private roomsService: RoomsService) {}
 
   @Get('/')
+  @ApiOkResponse({ description: 'The page was successfully opened' })
   @HttpCode(HttpStatus.OK)
   @Render('rooms/rooms')
   async root(@Req() req: Request) {
@@ -29,13 +30,8 @@ export class RoomsController {
     return { user: req.user, token: req.cookies.jwt, rooms };
   }
 
-  @Post('/')
-  @Redirect('/rooms')
-  create(@Body('title') title: string) {
-    this.roomsService.create(title);
-  }
-
   @Get(':id')
+  @ApiOkResponse({ description: 'The page was successfully opened' })
   @HttpCode(HttpStatus.OK)
   @Render('rooms/singleRoom')
   async currentRoom(@Param('id') id: string, @Req() req: Request | any) {

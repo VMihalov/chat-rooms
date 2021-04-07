@@ -1,4 +1,4 @@
-import { Logger, UseFilters, UseGuards, UsePipes } from '@nestjs/common';
+import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RoomsService } from '../rooms.service';
-import { WsJwtAuthGuard } from 'src/modules/auth/guards/ws.jwt.auth.guard';
+import { WsJwtAuthGuard } from 'src/auth/guards/ws.jwt.auth.guard';
 import { RoomsFilter } from '../filters/rooms.filter';
 import { AddRoomPipe } from '../pipes/add-room.pipe';
 
@@ -28,10 +28,9 @@ export class RoomsMenuGateway {
   }
 
   @SubscribeMessage('getAll')
-  getAll(@ConnectedSocket() socket: Socket) {
-    this.roomsService.findAll().then((rooms) => {
-      socket.emit('getRooms', rooms);
-    });
+  async getAll(@ConnectedSocket() socket: Socket) {
+    const rooms = await this.roomsService.findAll();
+    socket.emit('getRooms', rooms);
   }
 
   @SubscribeMessage('createRoom')

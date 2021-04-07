@@ -8,8 +8,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { WsJwtAuthGuard } from 'src/modules/auth/guards/ws.jwt.auth.guard';
-import { ChatService } from 'src/modules/chat/chat.service';
+import { WsJwtAuthGuard } from 'src/auth/guards/ws.jwt.auth.guard';
+import { ChatService } from 'src/chat/chat.service';
 import { RoomsFilter } from '../filters/rooms.filter';
 import { AddMessagePipe } from '../pipes/add-message.pipe';
 
